@@ -3,6 +3,7 @@ locals {
   name_prefix = "tws-${var.environment}"
 
   common_labels = merge(
+
     {
       project     = "terraweek"
       environment = var.environment
@@ -35,4 +36,11 @@ resource "docker_container" "web" {
       value = labels.value
     }
   }
+}
+
+
+# Bonus examples
+locals {
+  upper_label_keys = [for k, v in var.extra_labels : upper(k)]
+  deployment_size  = var.environment == "prod" ? "large" : "small"
 }
