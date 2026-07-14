@@ -20,3 +20,9 @@ provider "aws" {
     }
   }
 }
+
+# Bonus: Provider Alias
+provider "aws" {
+  alias  = "secondary"
+  region = var.aws_region
+}

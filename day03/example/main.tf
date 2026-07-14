@@ -1,6 +1,5 @@
 # --- Data sources: read existing info, don't create anything ---
 
-# Latest Amazon Linux 2023 AMI in the chosen region.
 data "aws_ami" "al2023" {
   most_recent = true
   owners      = ["amazon"]
@@ -16,12 +15,13 @@ data "aws_ami" "al2023" {
   }
 }
 
-# Available AZs in the region.
 data "aws_availability_zones" "available" {
   state = "available"
 }
 
-# --- Network ---
+# -----------------------------
+# Network
+# -----------------------------
 
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
@@ -70,7 +70,9 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# --- Security group ---
+# -----------------------------
+# Security Group
+# -----------------------------
 
 resource "aws_security_group" "web" {
   name        = "${var.name_prefix}-web-sg"
@@ -98,29 +100,74 @@ resource "aws_security_group" "web" {
   }
 }
 
-# --- Compute: EC2 that installs Nginx on boot ---
-# We use `user_data` (a boot script) instead of SSH-based provisioners.
-# That's the modern, reliable pattern: no key pair or SSH ingress needed, and
-# it works even when the instance is replaced. (More on provisioners on Day 6.)
+# -----------------------------
+# EC2 Instance
+# -----------------------------
 
 resource "aws_instance" "web" {
+
   ami                    = data.aws_ami.al2023.id
   instance_type          = var.instance_type
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.web.id]
 
+  # Assignment Task: depends_on
+  depends_on = [
+    aws_internet_gateway.igw,
+    aws_route_table_association.public
+  ]
+
   user_data = <<-EOF
-    #!/bin/bash
-    dnf install -y nginx
-    echo "<h1>Hello from TerraWeek 2026 🚀</h1>" > /usr/share/nginx/html/index.html
-    systemctl enable --now nginx
-  EOF
+#!/bin/bash
+dnf install -y nginx
+echo "<h1>Hello from TerraWeek 2026 🚀</h1>" > /usr/share/nginx/html/index.html
+systemctl enable --now nginx
+EOF
 
   lifecycle {
+
     create_before_destroy = true
+
+    # Assignment Task
+    ignore_changes = [
+      tags
+    ]
+
   }
 
   tags = {
     Name = "${var.name_prefix}-web"
   }
+}
+
+# ---------------------------------------------------
+# Assignment Task : count Meta Argument
+# ---------------------------------------------------
+
+resource "null_resource" "count_demo" {
+
+  count = 3
+
+  triggers = {
+    number = count.index
+  }
+
+}
+
+# ---------------------------------------------------
+# Assignment Task : for_each Meta Argument
+# ---------------------------------------------------
+
+resource "null_resource" "foreach_demo" {
+
+  for_each = toset([
+    "dev",
+    "staging",
+    "prod"
+  ])
+
+  triggers = {
+    environment = each.key
+  }
+
 }
