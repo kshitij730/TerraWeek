@@ -1,49 +1,125 @@
+####################################################
+# Instance Name
+####################################################
+
 variable "name" {
-  description = "Logical name for this instance (used in tags)."
-  type        = string
+
+  description = "Logical name of the EC2 instance."
+
+  type = string
+
 }
+
+####################################################
+# Instance Type
+####################################################
 
 variable "instance_type" {
-  description = "EC2 instance type. t2.micro is AWS Free Tier in most regions."
-  type        = string
-  default     = "t2.micro"
+
+  description = "AWS EC2 Instance Type."
+
+  type = string
+
+  default = "t2.micro"
+
 }
+
+####################################################
+# Environment
+####################################################
 
 variable "environment" {
-  description = "Environment this instance belongs to."
-  type        = string
-  default     = "dev"
+
+  description = "Deployment Environment."
+
+  type = string
+
+  default = "dev"
 
   validation {
-    condition     = contains(["dev", "staging", "prod"], var.environment)
-    error_message = "environment must be one of: dev, staging, prod."
+
+    condition = contains(
+
+      [
+
+        "dev",
+
+        "staging",
+
+        "prod"
+
+      ],
+
+      var.environment
+
+    )
+
+    error_message = "Environment must be dev, staging or prod."
+
   }
+
 }
 
-# --- Wired in by the root module (good practice: modules take IDs, not lookups) ---
+####################################################
+# AMI
+####################################################
 
 variable "ami" {
-  description = "AMI ID to launch. Resolve this once in the root module via a data source and pass it in."
-  type        = string
+
+  description = "Amazon Machine Image ID."
+
+  type = string
 
   validation {
-    condition     = startswith(var.ami, "ami-")
-    error_message = "ami must be a valid AMI ID starting with 'ami-'."
+
+    condition = startswith(
+
+      var.ami,
+
+      "ami-"
+
+    )
+
+    error_message = "AMI should start with 'ami-'."
+
   }
+
 }
+
+####################################################
+# Subnet
+####################################################
 
 variable "subnet_id" {
-  description = "ID of the subnet to launch the instance in."
-  type        = string
+
+  description = "Subnet ID."
+
+  type = string
+
 }
+
+####################################################
+# Security Groups
+####################################################
 
 variable "vpc_security_group_ids" {
-  description = "List of security group IDs to attach to the instance."
-  type        = list(string)
+
+  description = "Security Group IDs."
+
+  type = list(string)
+
 }
 
+####################################################
+# Tags
+####################################################
+
 variable "tags" {
-  description = "Extra tags to merge onto the instance."
-  type        = map(string)
-  default     = {}
+
+  description = "Additional Tags."
+
+  type = map(string)
+
+  default = {}
+
 }

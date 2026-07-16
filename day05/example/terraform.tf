@@ -20,3 +20,9 @@ provider "aws" {
     }
   }
 }
+
+# Bonus: Provider Alias
+provider "aws" {
+  alias  = "secondary"
+  region = "us-east-1"
+}
