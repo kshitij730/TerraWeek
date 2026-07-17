@@ -1,0 +1,47 @@
+name: TerraDeploy Capstone CI
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    name: Terraform Validation Pipeline
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: day06/terraform-capstone
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Check Terraform Formatting
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Run Terraform Tests
+        run: terraform test
+
+      - name: Generate Terraform Plan
+        run: terraform plan -input=false
+
+      - name: Run Trivy Security Scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: day06/terraform-capstone
