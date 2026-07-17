@@ -1,0 +1,21 @@
+repos:
+
+- repo: https://github.com/antonbabenko/pre-commit-terraform
+
+  rev: v1.97.3
+
+  hooks:
+
+    - id: terraform_fmt
+
+    - id: terraform_validate
+
+    - id: terraform_tflint
+
+- repo: https://github.com/aquasecurity/trivy
+
+  rev: v0.58.1
+
+  hooks:
+
+    - id: trivy-config

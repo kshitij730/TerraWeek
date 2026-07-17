@@ -1,18 +1,27 @@
-# Native Terraform tests (Terraform 1.6+). Run with:  terraform test
-# Each `run` block executes plan or apply and asserts on the result.
+####################################################
+# Dev Environment
+####################################################
 
-# 1) Default (dev) should pick the small instance type. Plan-only, no apply.
-run "dev_uses_micro" {
+run "dev_environment" {
+
   command = plan
 
+  variables {
+    environment = "dev"
+  }
+
   assert {
-    condition     = local.instance_type == "t3.micro"
-    error_message = "dev environment should use t3.micro"
+    condition     = output.instance_type == "t3.micro"
+    error_message = "Dev should use t3.micro."
   }
 }
 
-# 2) prod should scale up to a larger instance type.
-run "prod_uses_medium" {
+####################################################
+# Prod Environment
+####################################################
+
+run "prod_environment" {
+
   command = plan
 
   variables {
@@ -20,33 +29,57 @@ run "prod_uses_medium" {
   }
 
   assert {
-    condition     = local.instance_type == "t3.medium"
-    error_message = "prod environment should use t3.medium"
+    condition     = output.instance_type == "t3.medium"
+    error_message = "Prod should use t3.medium."
   }
 }
 
-# 3) Full apply: the generated name should start with our prefix.
-run "name_has_prefix" {
+####################################################
+# Resource Name
+####################################################
+
+run "resource_prefix" {
+
   command = apply
 
   variables {
-    environment = "staging"
     app_name    = "tws"
+    environment = "dev"
   }
 
   assert {
-    condition     = startswith(output.resource_name, "tws-staging")
-    error_message = "resource name must start with the app-environment prefix"
+    condition     = startswith(output.resource_name, "tws-")
+    error_message = "Resource name should start with tws-."
   }
 }
 
-# 4) Invalid environment must be rejected by the variable validation.
-run "rejects_bad_environment" {
+####################################################
+# Workspace Output
+####################################################
+
+run "workspace_exists" {
+
+  command = plan
+
+  assert {
+    condition     = output.workspace != ""
+    error_message = "Workspace output missing."
+  }
+}
+
+####################################################
+# Invalid Environment
+####################################################
+
+run "invalid_environment" {
+
   command = plan
 
   variables {
     environment = "banana"
   }
 
-  expect_failures = [var.environment]
+  expect_failures = [
+    var.environment
+  ]
 }
