@@ -288,9 +288,9 @@ Each file contributes to a different part of the Terraform workflow.
 
 ### 📸 Screenshot
 
-```md
+
 ![Project Structure](images/project-structure.png)
-```
+
 
 ---
 
