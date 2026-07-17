@@ -97,7 +97,7 @@ jobs:
       #########################################################
 
       - name: Trivy Security Scan
-        uses: aquasecurity/trivy-action@v0.33.1
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: config
           scan-ref: day06/terraform-capstone
