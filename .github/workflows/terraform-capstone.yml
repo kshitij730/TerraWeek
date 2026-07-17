@@ -86,7 +86,11 @@ jobs:
       #########################################################
 
       - name: Terraform Plan
-        run: terraform plan -input=false -no-color
+        run: |
+          terraform plan \
+            -input=false \
+            -no-color \
+            -var="bucket_name=terradeploy-${{ github.run_id }}"
 
       #########################################################
       # Trivy Scan
